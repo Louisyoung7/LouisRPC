@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+#include "../example/calculator.pb.h"
+
 using namespace std;
 
 Provider::Provider(const std::string& ip, int port) : listenAddr_(ip, port), server_(&eventLoop_, listenAddr_) {
@@ -40,6 +42,7 @@ void Provider::onMessage(const net::TcpServer::TcpConnectionPtr& conn, base::Buf
 
     // 检查总长度是否有效
     if (totalLen > static_cast<int>(buffer.readableBytes()) - static_cast<int>(sizeof(totalLen))) { return; }
+
     cout << "Total length: " << totalLen << endl;
 
     // 读取数据
@@ -47,27 +50,14 @@ void Provider::onMessage(const net::TcpServer::TcpConnectionPtr& conn, base::Buf
     memcpy(data.data(), buffer.peek() + sizeof(totalLen), totalLen);
     buffer.consume(totalLen + sizeof(totalLen));
 
-    // 读取头部
-    int headerLen = 0;
-    std::memcpy(&headerLen, data.data(), sizeof(headerLen));
-    data.erase(data.begin(), data.begin() + sizeof(headerLen));
-
-    // 读取服务名
-    std::string serviceName(data.begin(), data.begin() + headerLen);
-    data.erase(data.begin(), data.begin() + headerLen);
-
-    // 读取参数
-    int a = 0;
-    int b = 0;
-    std::memcpy(&a, data.data(), sizeof(a));
-    std::memcpy(&b, data.data() + sizeof(a), sizeof(b));
-    data.erase(data.begin(), data.begin() + sizeof(a) + sizeof(b));
-    assert(data.empty());
+    // 解析请求
+    calculator::AddRequest request;
+    request.ParseFromArray(data.data(), totalLen);
 
     // 调用服务
-    auto service = services_[serviceName];
+    auto service = services_[request.name()];
     assert(service != nullptr);
-    int result = service(a, b);
+    int result = service(request.a(), request.b());
 
     // 发送结果
     vector<char> response(sizeof(result));

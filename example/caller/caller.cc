@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 
+#include "calculator.pb.h"
+
 using namespace std;
 
 int sendRequest(int fd, const std::string& serviceName, int a, int b, sockaddr_in serverAddr) {
@@ -16,16 +18,21 @@ int sendRequest(int fd, const std::string& serviceName, int a, int b, sockaddr_i
 
     cout << "Send request to " << inet_ntoa(serverAddr.sin_addr) << ":" << ntohs(serverAddr.sin_port) << endl;
 
+    // 构建请求
+    calculator::AddRequest request;
+    request.set_name(serviceName);
+    request.set_a(a);
+    request.set_b(b);
+
+    auto requestSize = request.ByteSizeLong();
+
     // 发送请求
-    int headerLen = serviceName.size();
-    int totalLen = sizeof(int) + serviceName.size() + sizeof(a) + sizeof(b);
-    vector<char> data(totalLen + sizeof(totalLen));
-    memcpy(data.data(), &totalLen, sizeof(totalLen));
-    memcpy(data.data() + sizeof(totalLen), &headerLen, sizeof(headerLen));
-    memcpy(data.data() + sizeof(totalLen) + sizeof(headerLen), serviceName.c_str(), serviceName.size());
-    memcpy(data.data() + sizeof(totalLen) + sizeof(headerLen) + serviceName.size(), &a, sizeof(a));
-    memcpy(data.data() + sizeof(totalLen) + sizeof(headerLen) + serviceName.size() + sizeof(a), &b, sizeof(b));
-    if (::send(fd, data.data(), data.size(), 0) < 0) {
+    vector<char> requestData(requestSize + sizeof(int));
+    // 写入请求长度
+    memcpy(requestData.data(), &requestSize, sizeof(int));
+    // 写入序列化的请求数据
+    request.SerializeToArray(requestData.data() + sizeof(int), requestSize);
+    if (::send(fd, requestData.data(), requestSize + sizeof(int), 0) < 0) {
         perror("send");
         return 1;
     }
@@ -55,7 +62,7 @@ int main() {
     serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     serverAddr.sin_port = htons(8080);
 
-    int result = sendRequest(callerFd, "add", 1, 2, serverAddr);
+    int result = sendRequest(callerFd, "mul", 5, 8, serverAddr);
     cout << "Result: " << result << endl;
     ::close(callerFd);
     return 0;

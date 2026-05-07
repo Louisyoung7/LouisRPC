@@ -62,7 +62,7 @@ int main() {
     serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     serverAddr.sin_port = htons(8080);
 
-    int result = sendRequest(callerFd, "mul", 5, 8, serverAddr);
+    int result = sendRequest(callerFd, "mul", -5, 8, serverAddr);
     cout << "Result: " << result << endl;
     ::close(callerFd);
     return 0;

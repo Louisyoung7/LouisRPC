@@ -8,6 +8,7 @@
 
 class Provider {
    public:
+    using RpcHandler = std::function<std::string(const std::string&)>;
     Provider(const std::string& ip, int port);
     ~Provider() = default;
 
@@ -15,13 +16,14 @@ class Provider {
     void start();
 
     // 注册服务
-    void registerService(const std::string& serviceName, std::function<int(int, int)> service);
+    template <typename Req, typename Resp, typename Func>
+    void registerService(const std::string& serviceName, const std::string& methodName, Func&& handler);
 
    private:
     net::reactor::EventLoop eventLoop_;
     net::InetAddress listenAddr_;
     net::TcpServer server_;
-    std::unordered_map<std::string, std::function<int(int, int)>> services_;
+    std::unordered_map<std::string, std::unordered_map<std::string, RpcHandler>> services_;
 
     void onConnection(const net::TcpServer::TcpConnectionPtr& conn);
     void onMessage(const net::TcpServer::TcpConnectionPtr& conn, base::Buffer& buffer);

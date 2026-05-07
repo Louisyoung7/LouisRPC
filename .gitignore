@@ -17,3 +17,5 @@ CMakeFiles/
 cmake-build-*/
 *.cmake
 vcpkg_installed/
+*.pb.cc
+*.pb.h

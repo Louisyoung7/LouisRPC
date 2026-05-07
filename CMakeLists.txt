@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 添加LouisNet
 add_subdirectory(third_party/LouisNet)
 
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 
 # 添加子目录
 add_subdirectory(src)

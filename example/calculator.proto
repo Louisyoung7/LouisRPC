@@ -1,9 +1,13 @@
 syntax = "proto3";
 
-package calculator;
+package louis_rpc.calculator;
 
 message AddRequest {
   string name = 1;
   int32 a = 2;
   int32 b = 3;
+}
+
+message AddResponse {
+  int32 result = 1;
 }

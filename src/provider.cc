@@ -1,11 +1,13 @@
 #include "provider.h"
 
+#include <arpa/inet.h>
+
 #include <cassert>
 #include <cstring>
 #include <iostream>
 #include <vector>
 
-#include "../example/calculator.pb.h"
+#include "header.pb.h"
 
 using namespace std;
 
@@ -21,8 +23,14 @@ void Provider::start() {
 }
 
 // 注册服务
-void Provider::registerService(const std::string& serviceName, std::function<int(int, int)> service) {
-    services_[serviceName] = service;
+template <typename Req, typename Resp, typename Func>
+void Provider::registerService(const std::string& serviceName, const std::string& methodName, Func&& handler) {
+    services_[serviceName][methodName] = [handler](const std::string& args) -> std::string {
+        Req request;
+        if (!request.ParseFromString(args)) { return ""; }
+        Resp response = handler(request);
+        return response.SerializeAsString();
+    };
 }
 
 void Provider::onConnection(const net::TcpServer::TcpConnectionPtr& conn) {
@@ -36,32 +44,53 @@ void Provider::onConnection(const net::TcpServer::TcpConnectionPtr& conn) {
 void Provider::onMessage(const net::TcpServer::TcpConnectionPtr& conn, base::Buffer& buffer) {
     if (buffer.readableBytes() < 4) { return; }
     cout << "Receive message" << endl;
+
     // 读取总长度
     int totalLen = 0;
     std::memcpy(&totalLen, buffer.peek(), sizeof(totalLen));
 
-    // 检查总长度是否有效
+    // 检查数据是否完整
     if (totalLen > static_cast<int>(buffer.readableBytes()) - static_cast<int>(sizeof(totalLen))) { return; }
-
     cout << "Total length: " << totalLen << endl;
 
+    // 读取头部长度
+    int headerLen = 0;
+    std::memcpy(&headerLen, buffer.peek() + sizeof(totalLen), sizeof(headerLen));
+
     // 读取数据
-    vector<char> data(totalLen);
-    memcpy(data.data(), buffer.peek() + sizeof(totalLen), totalLen);
+    vector<char> header_with_args(totalLen - sizeof(headerLen));
+    std::copy(buffer.peek() + sizeof(totalLen) + sizeof(headerLen), buffer.peek() + sizeof(totalLen) + totalLen,
+              header_with_args.begin());
+    // 消耗读取的数据
     buffer.consume(totalLen + sizeof(totalLen));
 
-    // 解析请求
-    calculator::AddRequest request;
-    request.ParseFromArray(data.data(), totalLen);
+    // 解析头部
+    louis_rpc::Header header;
+    if (!header.ParseFromArray(header_with_args.data(), headerLen)) { return; }
+    auto serviceName = header.service_name();
+    auto methodName = header.method_name();
+    auto paramLen = header.param_len();
 
-    // 调用服务
-    auto service = services_[request.name()];
-    assert(service != nullptr);
-    int result = service(request.a(), request.b());
+    // 获取服务
+    auto service = services_.find(serviceName);
+    if (service == services_.end()) {
+        cout << "Service not found" << endl;
+        return;
+    }
 
-    // 发送结果
-    vector<char> response(sizeof(result));
-    memcpy(response.data(), &result, sizeof(result));
-    conn->send(response.data(), sizeof(result));
-    cout << "Send response done" << endl;
+    // 获取方法
+    auto method = service->second.find(methodName);
+    if (method == service->second.end()) {
+        cout << "Method not found" << endl;
+        return;
+    }
+
+    // 调用方法
+    std::string args(header_with_args.data() + headerLen, paramLen);
+    auto response = method->second(args);
+
+    // 发送响应
+    uint32_t respLen = ::htonl(response.size());
+    conn->send(&respLen, sizeof(respLen));
+    conn->send(response.data(), response.size());
 }

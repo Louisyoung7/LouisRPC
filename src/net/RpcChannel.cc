@@ -1,31 +1,20 @@
-#include "channel.h"
+#include "RpcChannel.h"
 
 #include <vector>
 
-#include "header.pb.h"
+#include "codec/RpcCodec.h"
+#include "proto/header.pb.h"
 
 template <typename Req, typename Resp>
-void Channel::call(const std::string& serviceName, const std::string& methodName, const Req& request, Resp& response) {
-    // 序列化请求参数
-    auto argsLen = request.ByteSizeLong();
-    std::vector<char> argsStr(argsLen);
-    request.SerializeToArray(argsStr.data(), argsLen);
-
-    // 序列化请求头
+void RpcChannel::call(const std::string& serviceName, const std::string& methodName, const Req& request,
+                      Resp& response) {
+    // 设置头部的服务名和方法名
     louis_rpc::Header header;
     header.set_service_name(serviceName);
     header.set_method_name(methodName);
-    header.set_param_len(argsStr.size());
-    auto headerLen = header.ByteSizeLong();
-    std::vector<char> headerStr(headerLen);
-    header.SerializeToArray(headerStr.data(), headerLen);
 
-    // 获取头部长度
-    uint32_t headerSize = ::htonl(headerLen);
-
-    // 获取总长度
-    uint32_t totalLen = sizeof(headerSize) + headerSize + argsLen;
-
+    // 序列化请求
+    std::vector<char> reqData = RpcCodec::encode(header, request);
 
     // 建立连接
     int connFd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -38,12 +27,6 @@ void Channel::call(const std::string& serviceName, const std::string& methodName
         ::close(connFd);
         return;
     }
-
-    // 发送请求
-    ::write(connFd, &totalLen, sizeof(totalLen));
-    ::write(connFd, &headerSize, sizeof(headerSize));
-    ::write(connFd, headerStr.data(), headerSize);
-    ::write(connFd, argsStr.data(), argsLen);
 
     // 接收响应
     std::string responseStr;

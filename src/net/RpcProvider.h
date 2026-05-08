@@ -6,11 +6,11 @@
 #include "net/InetAddress.h"
 #include "net/TcpServer.h"
 
-class Provider {
+class RpcProvider {
    public:
-    using RpcHandler = std::function<std::string(const std::string&)>;
-    Provider(const std::string& ip, int port);
-    ~Provider() = default;
+    using RpcHandler = std::function<std::vector<char>(const std::vector<char>&&)>;
+    RpcProvider(const std::string& ip, int port);
+    ~RpcProvider() = default;
 
     // 启动服务端
     void start();

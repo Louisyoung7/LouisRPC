@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "base/Buffer.h"
-#include "google/protobuf/message.h"
 #include "proto/header.pb.h"
 
 class RpcCodec {
@@ -12,7 +11,7 @@ class RpcCodec {
     ~RpcCodec() = default;
 
     // 编码网络包
-    static std::vector<char> encode(const louis_rpc::Header& header, const google::protobuf::Message& param);
+    static std::vector<char> encode(const louis_rpc::Header& header, const void* serializedParams, size_t paramSize);
 
     // 解码网络包
     struct DecodedPacket {

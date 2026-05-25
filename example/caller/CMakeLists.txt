@@ -1,4 +1,4 @@
-add_executable(caller caller.cc ../calculator.pb.cc)
+add_executable(caller caller.cc ${CMAKE_BINARY_DIR}/example/calculator.pb.cc)
 
 target_include_directories(caller PRIVATE ${CMAKE_SOURCE_DIR}/example)
 

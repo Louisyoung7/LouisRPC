@@ -1,4 +1,4 @@
-add_executable(callee callee.cc ../calculator.pb.cc)
+add_executable(callee callee.cc ${CMAKE_CURRENT_BINARY_DIR}/calculator.pb.cc)
 target_link_libraries(callee LouisRPCLib protobuf::libprotobuf pthread)
 target_include_directories(callee PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(callee PRIVATE ${CMAKE_SOURCE_DIR}/example)

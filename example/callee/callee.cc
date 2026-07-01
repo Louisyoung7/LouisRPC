@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "calculator.pb.h"
-#include "provider.h"
+#include "net/RpcProvider.h"
 
 using namespace std;
 using namespace louis_rpc::calculator;
@@ -21,7 +21,7 @@ AddResponse mul(AddRequest req) {
 
 int main() {
     // 创建Provider
-    Provider provider("127.0.0.1", 8080);
+    RpcProvider provider("127.0.0.1", 8080);
 
     // 注册服务
     provider.registerService<AddRequest, AddResponse>("calculator", "add", add);

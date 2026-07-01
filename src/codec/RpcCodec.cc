@@ -2,21 +2,17 @@
 
 // 编码网络包：外部负责序列化参数，codec 只处理协议组装
 std::vector<char> RpcCodec::encode(const louis_rpc::Header& header, const void* serializedParams, size_t paramSize) {
-    // 1.设置header的param_len
-    louis_rpc::Header mutableHeader = header;
-    mutableHeader.set_param_len(paramSize);
-
-    // 2.序列化header
-    size_t headerSize = mutableHeader.ByteSizeLong();
+    // 1.序列化header
+    size_t headerSize = header.ByteSizeLong();
     std::vector<char> headerBuf(headerSize);
-    mutableHeader.SerializeToArray(headerBuf.data(), headerSize);
+    header.SerializeToArray(headerBuf.data(), headerSize);
 
-    // 3.计算长度（网络字节序）
+    // 2.计算长度（网络字节序）
     uint32_t totalLen = static_cast<uint32_t>(headerSize + paramSize);
     uint32_t netTotalLen = ::htonl(totalLen);
     uint32_t netHeaderLen = ::htonl(static_cast<uint32_t>(headerSize));
 
-    // 4.构建完整报文
+    // 3.构建完整报文 [totalLen][headerLen][Header][Params]
     std::vector<char> packet;
     packet.reserve(kLengthFieldSize * 2 + headerSize + paramSize);
 
@@ -35,6 +31,7 @@ std::vector<char> RpcCodec::encode(const louis_rpc::Header& header, const void* 
                       static_cast<const char*>(serializedParams) + paramSize);
     }
 
+    // 4.返回完整报文
     return packet;
 }
 

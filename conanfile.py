@@ -4,8 +4,8 @@ from conan.tools.cmake import cmake_layout
 
 class LouisRPCRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "protobuf/3.21.12"
-    build_requires = "protobuf/3.21.12"
+    requires = "protobuf/4.25.3", "spdlog/1.14.1"
+    tool_requires = "protobuf/4.25.3"
     generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):

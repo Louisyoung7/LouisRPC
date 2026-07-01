@@ -5,6 +5,8 @@
 #include "base/Buffer.h"
 #include "proto/header.pb.h"
 
+static constexpr size_t kLengthFieldSize = sizeof(uint32_t);
+
 class RpcCodec {
    public:
     RpcCodec() = default;
@@ -19,7 +21,4 @@ class RpcCodec {
         std::vector<char> paramData;  // 参数数据
     };
     static std::optional<DecodedPacket> decode(base::Buffer& buffer);
-
-   private:
-    static constexpr size_t kLengthFieldSize = sizeof(uint32_t);
 };

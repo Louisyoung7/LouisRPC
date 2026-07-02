@@ -2,22 +2,10 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include <variant>
+#include <vector>
 
-// 消息类型
-enum class MsgType : uint8_t {
-    Request = 1,
-    Response = 2,
-};
-
-// RPC 状态码
-enum class RpcStatus : uint32_t {
-    OK = 0,
-    NOT_FOUND = 1,
-    INVALID_PARAM = 2,
-    INTERNAL_ERROR = 3,
-};
+#include "Protocol.h"
 
 // 请求负载
 struct RequestPayload {

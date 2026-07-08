@@ -23,7 +23,7 @@ struct ResponsePayload {
 // 统计消息结构体
 struct RpcMessage {
     MsgType msgType;
-    uint64_t msgId;
+    uint32_t msgId;
 
     std::variant<RequestPayload, ResponsePayload> payload;
 

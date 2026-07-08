@@ -30,7 +30,7 @@ constexpr size_t kMsgIdOffset = 3;
 constexpr size_t kPayloadLenOffset = 7;
 
 // 固定头部总长度：Magic(2) + MsgType(1) + MsgId(4) + PayloadLen(4) = 11 Bytes
-constexpr size_t kHeaderHeaderSize = 11;
+constexpr size_t kHeaderSize = 11;
 
 // 编译期端序开关
 // true  = 小端序 (x86/ARM 原生，零转换开销)
@@ -97,7 +97,7 @@ inline void writePayloadLen(uint8_t* header, uint32_t payloadLen) {
     detail::writeUint32(header + kPayloadLenOffset, payloadLen);
 }
 
-inline bool checkMagic(uint8_t* header) { return detail::readUint16(header + kMagicOffset) == kProtocolMagic; }
+inline bool checkMagic(const uint8_t* header) { return detail::readUint16(header + kMagicOffset) == kProtocolMagic; }
 
 inline MsgType readMsgType(const uint8_t* header) { return static_cast<MsgType>(header[kMsgTypeOffset]); }
 

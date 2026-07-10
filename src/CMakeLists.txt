@@ -30,7 +30,7 @@ add_library(LouisRPCLib STATIC ${SRC_FILES})
 target_include_directories(LouisRPCLib PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(LouisRPCLib PRIVATE ${CMAKE_SOURCE_DIR}/third_party/LouisNet/src)
 # 添加 protobuf 生成文件的目录 (proto/payload.pb.h 相对于 src 目录)
-target_include_directories(LouisRPCLib PRIVATE ${CMAKE_BINARY_DIR}/src/proto)
+target_include_directories(LouisRPCLib PRIVATE ${CMAKE_BINARY_DIR}/src)
 
 # 使用 PUBLIC 让 include 目录传播到依赖目标
 target_link_libraries(LouisRPCLib PUBLIC LouisNetLib PUBLIC protobuf::libprotobuf PRIVATE pthread)

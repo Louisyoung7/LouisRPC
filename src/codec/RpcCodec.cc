@@ -40,6 +40,8 @@ ssize_t RpcCodec::encode(const RpcMessage& msg, base::Buffer& output) {
     output.append(header, kHeaderSize);
 
     // 5.写入序列化后的Payload
+    // 确保buffer有足够的空间写入payload
+    output.ensureWritableBytes(payloadSize);
     char* payloadPtr = output.writerIt();
     if (!pbMsg->SerializeToArray(payloadPtr, static_cast<int>(payloadSize))) { return -1; }
 

@@ -1,24 +1,19 @@
 #pragma once
 
-#include <vector>
-
+#include "Message.h"
 #include "base/Buffer.h"
-#include "proto/header.pb.h"
 
 static constexpr size_t kLengthFieldSize = sizeof(uint32_t);
 
 class RpcCodec {
    public:
-    RpcCodec() = default;
-    ~RpcCodec() = default;
+    // 编码：结构化消息 -> 字节流
+    // 返回写入字节数，失败返回 -1
+    static ssize_t encode(const RpcMessage& msg, base::Buffer& output);
 
-    // 编码网络包
-    static std::vector<char> encode(const louis_rpc::Header& header, const void* serializedParams, size_t paramSize);
-
-    // 解码网络包
-    struct DecodedPacket {
-        louis_rpc::Header header;
-        std::vector<char> paramData;  // 参数数据
-    };
-    static std::optional<DecodedPacket> decode(base::Buffer& buffer);
+    // 解码：字节流 -> 结构化消息
+    // >0: 成功，返回消耗的字节数
+    //  0: 数据不足，需要继续读取
+    // <0: 协议错误（magic错/长度超限等），应断连
+    static ssize_t decode(base::Buffer& input, RpcMessage& out_msg);
 };

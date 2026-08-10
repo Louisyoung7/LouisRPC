@@ -8,7 +8,7 @@ target_link_libraries(LouisRPCTests GTest::gtest_main LouisRPCLib)
 
 target_include_directories(LouisRPCTests PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_include_directories(LouisRPCTests PRIVATE "${CMAKE_SOURCE_DIR}/third_party/LouisNet/src")
-target_include_directories(LouisRPCTests PRIVATE "${CMAKE_BINARY_DIR}/src/proto")
+target_include_directories(LouisRPCTests PRIVATE "${CMAKE_BINARY_DIR}/src")
 
 include(GoogleTest)
 gtest_discover_tests(LouisRPCTests)

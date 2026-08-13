@@ -1,6 +1,6 @@
 #include "Service.h"
 
-#include <stdexcept>
+#include "RpcException.h"
 
 // 注册方法，同名方法会覆盖旧的方法
 // 模板方法，根据请求和响应的类型自动序列化和反序列化
@@ -15,7 +15,7 @@ void Service::registerMethod(const std::string& methodName, Class* instance,
 
         // 2. 反序列化请求参数
         if (!req.ParseFromArray(reqBytes.data(), reqBytes.size())) {
-            throw std::runtime_error("Failed to parse request");  // 框架层可捕获转为 INVALID_PARAM
+            throw RpcException(RpcStatus::INVALID_PARAM, "Failed to parse request");
         }
 
         // 3. 调用业务逻辑

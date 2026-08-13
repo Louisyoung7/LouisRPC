@@ -23,7 +23,7 @@ class Service {
     // 检查服务是否注册了指定方法
     bool hasMethod(const std::string& methodName) const { return methods_.find(methodName) != methods_.end(); }
 
-    bool invoke(const std::string& methodName, const std::vector<char>& params, std::vector<char>& result);
+    bool invoke(const std::string& methodName, const std::vector<char>& params, std::vector<char>& result) const;
 
    private:
     std::string name_;                                        // 服务名

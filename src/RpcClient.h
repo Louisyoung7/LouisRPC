@@ -30,6 +30,8 @@ class RpcClient {
 
     // callAsync 的结果回调函数类型
     using ResultCallback = std::function<void(CallResult)>;
+    // 连接建立/断开回调函数类型
+    using ConnectionCallback = std::function<void(bool connected)>;
 
     RpcClient(net::reactor::EventLoop* loop, const net::InetAddress& serverAddr, const std::string& name = "RpcClient");
     ~RpcClient();
@@ -48,6 +50,9 @@ class RpcClient {
     // timeoutMs <= 0 表示立即超时
     CallResult call(const std::string& serviceName, const std::string& methodName, const std::vector<char>& request,
                     int timeoutMs = 3000);
+
+    // 设置连接建立/断开回调函数
+    void setConnectionCallback(ConnectionCallback cb) { connectionCb_ = std::move(cb); }
 
    private:
     // 待处理调用结构体
@@ -73,5 +78,6 @@ class RpcClient {
     net::TcpConnectionPtr conn_;
     std::mutex mutex_;                                                         // 保护 conn_ 和 pendingCalls_
     std::unordered_map<uint32_t, std::shared_ptr<PendingCall>> pendingCalls_;  // 待处理调用表：消息ID -> 待处理调用
-    std::atomic<uint32_t> nextMsgId_{1};
+    std::atomic<uint32_t> nextMsgId_{1};                                       // 下一个消息ID
+    ConnectionCallback connectionCb_;                                          // 连接建立/断开回调函数
 };

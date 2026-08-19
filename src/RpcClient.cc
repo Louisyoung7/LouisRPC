@@ -50,6 +50,7 @@ void RpcClient::callAsync(const std::string& serviceName, const std::string& met
                                                    [this, msgId]() { onTimeout(msgId); });
 
     // 待处理调用入表
+    // 待处理调用入表
     net::TcpConnectionPtr conn;
     ResultCallback failCb;  // 连接未建立时的回调，锁外处理
     {
@@ -57,6 +58,13 @@ void RpcClient::callAsync(const std::string& serviceName, const std::string& met
         if (!conn_ || !conn_->connected()) {
             failCb = std::move(callback);
             client_.getLoop()->cancel(pending->timerId);
+            if (!conn_) {
+                info("It is no conn_.");
+            } else if (!conn_->connected()) {
+                info("It is not connected.");
+            } else {
+                info("Everything is not ok.");
+            }
             return;
         } else {
             pending->callback = std::move(callback);
@@ -102,6 +110,11 @@ void RpcClient::onConnection(const net::TcpConnectionPtr& conn) {
             conn_ = conn;
         }
         info("[RpcClient] connection {} established.", conn->name());
+
+        // 通知上层连接建立
+        if (connectionCb_) {
+            connectionCb_(true);
+        }
     } else {
         {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -110,6 +123,11 @@ void RpcClient::onConnection(const net::TcpConnectionPtr& conn) {
         // 连接断开，失败所有待处理调用
         failAllPending(CallError::kConnectionLost);
         info("[RpcClient] connection {} closed.", conn->name());
+
+        // 通知上层连接断开
+        if (connectionCb_) {
+            connectionCb_(false);
+        }
     }
 }
 

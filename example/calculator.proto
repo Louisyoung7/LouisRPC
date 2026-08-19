@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package calculator;
+
+message AddRequest {
+    uint32 a = 1;
+    uint32 b = 2;
+}
+
+message AddResponse {
+    uint32 result = 1;
+}

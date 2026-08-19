@@ -13,6 +13,7 @@ find_package(Protobuf CONFIG REQUIRED)
 
 # 添加子目录
 add_subdirectory(src)
+add_subdirectory(example)
 
 # 测试相关配置（默认关闭）
 option(BUILD_TESTS "Build tests" OFF)

@@ -1,9 +1,9 @@
-file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cc")
+file(GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cc")
 
 # 设置 proto 文件和输出目录
-set(PAYLOAD_PROTO ${CMAKE_SOURCE_DIR}/src/proto/payload.proto)
-set(PAYLOAD_PROTO_OUT_DIR ${CMAKE_BINARY_DIR}/src/proto)
-set(PAYLOAD_PROTO_BIN_DIR ${CMAKE_BINARY_DIR}/src/proto)
+set(PAYLOAD_PROTO ${PROJECT_SOURCE_DIR}/src/proto/payload.proto)
+set(PAYLOAD_PROTO_OUT_DIR ${PROJECT_BINARY_DIR}/src/proto)
+set(PAYLOAD_PROTO_BIN_DIR ${PROJECT_BINARY_DIR}/src/proto)
 
 # 创建输出目录
 file(MAKE_DIRECTORY ${PAYLOAD_PROTO_OUT_DIR})
@@ -12,7 +12,7 @@ file(MAKE_DIRECTORY ${PAYLOAD_PROTO_OUT_DIR})
 add_custom_command(
     OUTPUT ${PAYLOAD_PROTO_BIN_DIR}/payload.pb.cc ${PAYLOAD_PROTO_BIN_DIR}/payload.pb.h
     COMMAND ${Protobuf_PROTOC_EXECUTABLE} 
-        --proto_path=${CMAKE_SOURCE_DIR}/src/proto
+        --proto_path=${PROJECT_SOURCE_DIR}/src/proto
         --cpp_out=${PAYLOAD_PROTO_BIN_DIR}
         ${PAYLOAD_PROTO}
     DEPENDS ${PAYLOAD_PROTO}
@@ -27,10 +27,10 @@ list(APPEND SRC_FILES
 
 add_library(LouisRPCLib STATIC ${SRC_FILES})
 
-target_include_directories(LouisRPCLib PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_include_directories(LouisRPCLib PRIVATE ${CMAKE_SOURCE_DIR}/third_party/LouisNet/src)
+target_include_directories(LouisRPCLib PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(LouisRPCLib PRIVATE ${PROJECT_SOURCE_DIR}/third_party/LouisNet/src)
 # 添加 protobuf 生成文件的目录 (proto/payload.pb.h 相对于 src 目录)
-target_include_directories(LouisRPCLib PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(LouisRPCLib PRIVATE ${PROJECT_BINARY_DIR}/src)
 
 # 使用 PUBLIC 让 include 目录传播到依赖目标
 target_link_libraries(LouisRPCLib PUBLIC LouisNetLib PUBLIC protobuf::libprotobuf PRIVATE pthread)

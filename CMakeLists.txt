@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.25)
 project(LouisRPC)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -13,6 +13,7 @@ find_package(Protobuf CONFIG REQUIRED)
 
 # 添加子目录
 add_subdirectory(src)
+add_subdirectory(example)
 
 # 测试相关配置（默认关闭）
 option(BUILD_TESTS "Build tests" OFF)

@@ -28,7 +28,7 @@ list(APPEND SRC_FILES
 add_library(LouisRPCLib STATIC ${SRC_FILES})
 
 target_include_directories(LouisRPCLib PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(LouisRPCLib PRIVATE ${PROJECT_SOURCE_DIR}/third_party/LouisNet/src)
+target_include_directories(LouisRPCLib PRIVATE ${louisnet_SOURCE_DIR}/src)
 # 添加 protobuf 生成文件的目录 (proto/payload.pb.h 相对于 src 目录)
 target_include_directories(LouisRPCLib PRIVATE ${PROJECT_BINARY_DIR}/src)
 

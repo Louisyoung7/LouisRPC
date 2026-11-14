@@ -25,8 +25,8 @@ list(APPEND SRC_FILES
 add_executable(service calculatorService.cc ${CALCULATOR_PROTO_OUT_DIR}/calculator.pb.cc)
 add_executable(client client.cc ${CALCULATOR_PROTO_OUT_DIR}/calculator.pb.cc)
 
-target_include_directories(service PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/third_party/LouisNet/src ${CALCULATOR_PROTO_OUT_DIR})
-target_include_directories(client PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/third_party/LouisNet/src ${CALCULATOR_PROTO_OUT_DIR})
+target_include_directories(service PRIVATE ${PROJECT_SOURCE_DIR}/src ${louisnet_SOURCE_DIR}/src ${CALCULATOR_PROTO_OUT_DIR})
+target_include_directories(client PRIVATE ${PROJECT_SOURCE_DIR}/src ${louisnet_SOURCE_DIR}/src ${CALCULATOR_PROTO_OUT_DIR})
 
 target_link_libraries(service LouisRPCLib)
 target_link_libraries(client LouisRPCLib)

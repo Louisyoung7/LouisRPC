@@ -42,26 +42,27 @@
 - C++17 编译器（GCC 8+、Clang 10+ 或 MSVC 2019+）
 - CMake 3.25+
 - [Protocol Buffers](https://github.com/protocolbuffers/protobuf) (protobuf) — 序列化
-- [LouisNet](https://github.com/LouisRPC/LouisNet) — 底层网络库（作为 `third_party/LouisNet` 子模块包含）
+- [LouisNet](https://github.com/LouisRPC/LouisNet) — 底层网络库（构建时由 CMake FetchContent 自动拉取）
 - Google Test（可选，用于构建测试）
 
 ## 构建
 
 ```bash
-# 克隆时包含子模块
-git clone --recursive https://github.com/LouisRPC/LouisRPC.git
+# 克隆项目（LouisNet 由 CMake 在配置阶段自动拉取，无需子模块）
+git clone https://github.com/LouisRPC/LouisRPC.git
 cd LouisRPC
 
-# 配置
-cmake -B build
+# 安装依赖（Conan 2 生成 toolchain 和 CMake 预设，首次需要联网）
+conan install . --build=missing
 
-# 构建
-cmake --build build
+# 配置并构建（使用 conan install 生成的 conan-release 预设）
+cmake --preset conan-release
+cmake --build --preset conan-release
 
-# 构建并包含测试
-cmake -B build -DBUILD_TESTS=ON
-cmake --build build
-ctest --test-dir build
+# 构建并运行测试
+cmake --preset conan-release -DBUILD_TESTS=ON
+cmake --build --preset conan-release
+ctest --preset conan-release
 ```
 
 ## 线路协议
@@ -198,8 +199,7 @@ RpcClient::CallResult result = client.call("Calculator", "Add", paramsVec, 3000)
 │   ├── test_rpc_codec.cc
 │   ├── test_service.cc
 │   └── test_service_registry.cc
-└── third_party/
-    └── LouisNet/               # 网络库子模块
+└── build/_deps/louisnet-src/    # LouisNet 源码（FetchContent 自动下载，不纳入版本库）
 ```
 
 ## API 概览
